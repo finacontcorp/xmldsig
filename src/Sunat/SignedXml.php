@@ -63,10 +63,10 @@ class SignedXml
      * @param string $content
      * @return string
      */
-    public function signXml($content)
+    public function signXml($content, $hash_existing = null)
     {
         $doc = $this->getDocXml($content);
-        $this->sign($doc);
+        $this->sign($doc, $hash_existing);
 
         return $doc->saveXML();
     }
@@ -122,7 +122,7 @@ class SignedXml
     /**
      * @inheritdoc
      */
-    public function sign(DOMDocument $data)
+    public function sign(DOMDocument $data, $hash_existing = null)
     {
         if (null === $this->privateKey) {
             throw new RuntimeException(
@@ -140,7 +140,7 @@ class SignedXml
 
         $objXMLSecDSig = $this->createXmlSecurityDSig();
         $objXMLSecDSig->setCanonicalMethod($this->canonicalMethod);
-        $objXMLSecDSig->addReference($data, $this->digestAlgorithm, [self::ENVELOPED], ['force_uri' => true]);
+        $objXMLSecDSig->addReference($data, $this->digestAlgorithm, [self::ENVELOPED], ['force_uri' => true], $hash_existing);
         $objXMLSecDSig->sign($objKey, $this->getNodeSign($data));
 
         /* Add associated public key */

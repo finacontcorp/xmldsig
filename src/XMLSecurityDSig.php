@@ -605,7 +605,7 @@ class XMLSecurityDSig
      * @param null|array $options
      * @throws Exception
      */
-    private function addRefInternal($sinfoNode, $node, $algorithm, $arTransforms=null, $options=null)
+    private function addRefInternal($sinfoNode, $node, $algorithm, $arTransforms=null, $options=null, $hash_existing = null)
     {
         $prefix = null;
         $prefix_ns = null;
@@ -678,6 +678,10 @@ class XMLSecurityDSig
         $refNode->appendChild($digestMethod);
         $digestMethod->setAttribute('Algorithm', $algorithm);
 
+		    if (isset($hash_existing) && $hash_existing != '') {
+			      $digValue = $hash_existing;
+		    }
+
         $digestValue = $this->createNewSignNode('DigestValue', $digValue);
         $refNode->appendChild($digestValue);
     }
@@ -689,13 +693,13 @@ class XMLSecurityDSig
      * @param null|array $options
      * @throws Exception
      */
-    public function addReference($node, $algorithm, $arTransforms=null, $options=null)
+    public function addReference($node, $algorithm, $arTransforms=null, $options=null, $hash_existing = null)
     {
         if ($xpath = $this->getXPathObj()) {
             $query = "./secdsig:SignedInfo";
             $nodeset = $xpath->query($query, $this->sigNode);
             if ($sInfo = $nodeset->item(0)) {
-                $this->addRefInternal($sInfo, $node, $algorithm, $arTransforms, $options);
+                $this->addRefInternal($sInfo, $node, $algorithm, $arTransforms, $options, $hash_existing);
             }
         }
     }
